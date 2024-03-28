@@ -15,10 +15,13 @@ import java.util.Optional;
 public class JdbcTemplateMemberRepository implements MemberRepository {
 
     private final JdbcTemplate jdbcTemplate;
+
+    // 생성자를 통한 JdbcTemplate 의존성 주입
     public JdbcTemplateMemberRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    // 회원 정보 저장
     @Override
     public Member save(Member member) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
@@ -27,29 +30,33 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", member.getName());
 
-        Number key
-                = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
+        Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters)); // 새로운 회원 추가 및 생성된 ID 반환
         member.setId(key.longValue());
         return member;
     }
 
+    // ID로 회원 조회
     @Override
     public Optional<Member> findById(Long id) {
         List<Member> result = jdbcTemplate.query("select * from member where id=?", memberRowMapper(), id);
         return result.stream().findAny();
     }
 
+    // 이름으로 회원 조회
     @Override
     public Optional<Member> findByName(String name) {
-        List<Member> result = jdbcTemplate.query("select * from member where name=?", memberRowMapper(),name);
+        List<Member> result = jdbcTemplate.query("select * from member where name=?", memberRowMapper(), name);
         return result.stream().findAny();
     }
 
+    // 모든 회원 조회
     @Override
     public List<Member> findAll() {
         return jdbcTemplate.query("select * from member", memberRowMapper());
     }
-    private RowMapper<Member> memberRowMapper(){
+
+    // ResultSet을 Member 객체로 매핑하는 RowMapper 정의
+    private RowMapper<Member> memberRowMapper() {
         return (rs, rowNum) -> {
             Member member = new Member();
             member.setId(rs.getLong("id"));
@@ -57,5 +64,4 @@ public class JdbcTemplateMemberRepository implements MemberRepository {
             return member;
         };
     }
-
 }
