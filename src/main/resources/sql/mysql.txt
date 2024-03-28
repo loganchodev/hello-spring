@@ -1,0 +1,12 @@
+use webdb;
+
+create table member
+(
+	id bigint auto_increment,
+    name varchar(255),
+    primary key(id)
+);
+
+select * from member;
+
+insert into member(name) values('spring');
