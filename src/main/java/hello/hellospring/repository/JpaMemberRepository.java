@@ -39,4 +39,5 @@ public class JpaMemberRepository implements MemberRepository{
         List<Member> result = em.createQuery("select m from Member m", Member.class).getResultList();
         return result;
     }
+
 }
